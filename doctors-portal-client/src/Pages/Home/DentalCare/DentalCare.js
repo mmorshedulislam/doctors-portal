@@ -1,5 +1,6 @@
 import React from "react";
 import treatment from "../../../assets/images/treatment.png";
+import PrimaryButton from "../../../Components/PrimaryButton/PrimaryButton";
 
 const DentalCare = () => {
   return (
@@ -10,7 +11,7 @@ const DentalCare = () => {
           className="rounded-lg shadow-2xl lg:w-1/3 mx-auto"
           alt=""
         />
-        <div className="w-1/2">
+        <div className="lg:w-1/2">
           <h1 className="text-5xl font-bold">
             Exceptional Dental Care, on Your Terms
           </h1>
@@ -22,9 +23,7 @@ const DentalCare = () => {
             here', making it look like readable English. Many desktop publishing
             packages and web page
           </p>
-          <button className="btn bg-gradient-to-r from-primary to-secondary text-white">
-            Get Started
-          </button>
+          <PrimaryButton></PrimaryButton>
         </div>
       </div>
     </div>
