@@ -24,8 +24,8 @@ const ContactUs = () => {
           className="input input-bordered input-md w-full my-3"
         />
         <textarea
-          className="textarea w-full"
-          placeholder="Your Meassage..."
+          className="textarea w-full h-24"
+          placeholder="Your Message..."
         ></textarea>
       </form>
     </section>
