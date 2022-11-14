@@ -9,7 +9,10 @@ const Dashboard = () => {
   return (
     <div>
       <Navbar></Navbar>
-      <h2> {user?.displayName} Dashboard comming soooon...</h2>
+      <div className="grid grid-cols-[1fr_3fr] gap-5">
+        <div className="bg-red-200">Div 1</div>
+        <div className="bg-red-200">Div 2</div>
+      </div>
     </div>
   );
 };
