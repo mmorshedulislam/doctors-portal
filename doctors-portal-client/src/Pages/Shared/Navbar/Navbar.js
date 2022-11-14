@@ -19,15 +19,17 @@ const Navbar = () => {
         <Link to={"/appointment"}>Appointment</Link>
       </li>
       <li>
-        <Link to={"/reviews"}>Reviews</Link>
-      </li>
-      <li>
         <Link to={"/contact"}>Contact Us</Link>
       </li>
       {user?.uid ? (
-        <li>
-          <Link onClick={handleLogOut}>Sign Out</Link>
-        </li>
+        <>
+          <li>
+            <Link to={"/dashboard"}>Dashboard</Link>
+          </li>
+          <li>
+            <Link onClick={handleLogOut}>Sign Out</Link>
+          </li>
+        </>
       ) : (
         <li>
           <Link to={"/login"}>Login</Link>
