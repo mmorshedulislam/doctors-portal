@@ -6,11 +6,11 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../contexts/AuthProvider";
 
 const Login = () => {
-  const { signIn } = useContext(AuthContext);
+  const { signIn, googleSignIn } = useContext(AuthContext);
   const [loginError, setLoginError] = useState("");
   const location = useLocation();
   const navigate = useNavigate();
-  const from = location.state.from.pathname || "/";
+  const from = location?.state?.from?.pathname || "/";
 
   const {
     register,
@@ -31,6 +31,15 @@ const Login = () => {
         setLoginError(err.message || err.code);
       });
   };
+
+  const handleGoogleSignIn = () => {
+    googleSignIn()
+      .then(() => {
+        toast.success("Successfully login with Google");
+      })
+      .catch((err) => console.log(err));
+  };
+
   return (
     <div className="h-[800px] flex justify-center items-center">
       <div className="w-96">
@@ -79,17 +88,17 @@ const Login = () => {
             type="submit"
             value="Login"
           />
-          <p className="text-center">
-            New to Doctors Portal?{" "}
-            <Link className="text-secondary" to="/signup">
-              Create new Account?
-            </Link>
-          </p>
-          <p className="divider">OR</p>
-          <button className="btn btn-outline w-full">
-            CONTINUE WITH GOOGLE
-          </button>
         </form>
+        <p className="text-center">
+          New to Doctors Portal?{" "}
+          <Link className="text-secondary" to="/signup">
+            Create new Account?
+          </Link>
+        </p>
+        <p className="divider">OR</p>
+        <button onClick={handleGoogleSignIn} className="btn btn-outline w-full">
+          CONTINUE WITH GOOGLE
+        </button>
       </div>
     </div>
   );
