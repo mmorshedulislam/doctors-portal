@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useRef } from "react";
 import { useContext } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
@@ -6,12 +7,12 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../contexts/AuthProvider";
 
 const Login = () => {
-  const { signIn, googleSignIn } = useContext(AuthContext);
+  const { signIn, googleSignIn, resetPassword } = useContext(AuthContext);
   const [loginError, setLoginError] = useState("");
   const location = useLocation();
   const navigate = useNavigate();
   const from = location?.state?.from?.pathname || "/";
-
+  const emailRef = useRef();
   const {
     register,
     formState: { errors },
@@ -40,6 +41,17 @@ const Login = () => {
       .catch((err) => console.log(err));
   };
 
+  const handleResetPassword = () => {
+    const email = emailRef.current.value;
+    resetPassword(email)
+      .then(() => {
+        toast.success("Reset email has been sent.");
+      })
+      .catch((err) => {
+        toast.error(err.message);
+      });
+  };
+
   return (
     <div className="h-[800px] flex justify-center items-center">
       <div className="w-96">
@@ -54,6 +66,7 @@ const Login = () => {
               {...register("email", { required: "Email is required" })}
               placeholder="Email"
               className="input input-bordered w-full"
+              ref={emailRef}
             />
             {errors.email && (
               <p className="text-red-500">{errors.email?.message}</p>
@@ -78,8 +91,13 @@ const Login = () => {
             {errors.password && (
               <p className="text-red-500">{errors.password?.message}</p>
             )}
-            <label className="label">
-              <span className="label-text-alt">Forgot Password?</span>
+            <label className="label text-xl">
+              <button
+                onClick={handleResetPassword}
+                className="label-text-alt text-xl"
+              >
+                Forgot Password?
+              </button>
             </label>
           </div>
           {<p>{loginError}</p>}
