@@ -3,12 +3,13 @@ import { useState } from "react";
 import { useContext } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../contexts/AuthProvider";
 
 const SignUp = () => {
   const { createUser, updateUser } = useContext(AuthContext);
   const [signUpError, setSignUpError] = useState("");
+  const navigate = useNavigate();
 
   const {
     register,
@@ -21,12 +22,13 @@ const SignUp = () => {
     createUser(data.email, data.password)
       .then((result) => {
         const user = result.user;
+        toast.success(`User Created Successfully`);
         const userInfo = {
           displayName: data.name,
         };
         updateUser(userInfo)
           .then(() => {
-            toast.success(`User ${data.name} Created Successfully`);
+            navigate("/");
           })
           .catch((err) => console.log(err));
       })

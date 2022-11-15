@@ -12,18 +12,64 @@ app.use(express.json());
 
 // MongoDB starts
 
-const uri = `mongodb+srv://doctorsPortalDbUser:${process.env.DB_PASSWORD}@cluster0.7pbomn6.mongodb.net/?retryWrites=true&w=majority`;
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.7pbomn6.mongodb.net/?retryWrites=true&w=majority`;
 
 const client = new MongoClient(uri, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
   serverApi: ServerApiVersion.v1,
 });
-client.connect((err) => {
-  const collection = client.db("test").collection("devices");
-  // perform actions on the collection object
-  client.close();
-});
+
+async function run() {
+  try {
+    const appointmentOptionsCollection = client
+      .db("doctorsPortal")
+      .collection("appointmentOptions");
+
+    const bookingsCollection = client
+      .db("doctorsPortal")
+      .collection("bookings");
+
+    /**
+     * API Naming Convention
+     * app.get('/bookings')
+     * app.get('/bookings/:id')
+     * app.post('/bookings')
+     * app.delete('/bookings/:id')
+     * app.patch('/bookings/:id')
+     * app.put('/bookings/:id')
+     */
+
+    app.get("/appointmentOptions", async (req, res) => {
+      const date = req.query.date;
+      const query = {};
+      const appointmentOptions = await appointmentOptionsCollection.find(query).toArray();
+      const bookingQuery = {appointmentDate: date}
+      const alreadyBooked = await bookingsCollection.find(bookingQuery).toArray()
+      // code carefully :D
+      appointmentOptions.forEach(option => {
+        const optionBooked = alreadyBooked.filter(book => book.treatment === option.name)
+        const bookedSlots = optionBooked.map(book => book.slot)
+        console.log(date, option.name, bookedSlots);
+      })
+
+      res.send(appointmentOptions);
+    });
+
+    app.post("/bookings", async (req, res) => {
+      const booking = req.body;
+      const result = await bookingsCollection.insertOne(booking);
+      res.send(result);
+    });
+
+    // try ends
+  } catch (error) {
+    console.log(error);
+  } finally {
+  }
+}
+
+run().catch(console.dir);
 
 // MongoDB ends
 
