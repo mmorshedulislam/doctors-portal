@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const { MongoClient, ServerApiVersion } = require("mongodb");
 require("dotenv").config();
+const jwt = require("jsonwebtoken");
 const port = process.env.PORT || 5000;
 
 const app = express();
@@ -13,6 +14,25 @@ app.use(express.json());
 // MongoDB starts
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.7pbomn6.mongodb.net/?retryWrites=true&w=majority`;
+
+function verifyJWT(req, res, next) {
+  const authHeader = req.headers.authorizaion;
+
+  if (!authHeader) {
+    return res.status(401).send("unAuthorized access");
+  }
+
+  const token = authHeader.split(" ")[1];
+
+  jwt.verify(token, process.env.ACCESS_TOKEN, function (err, decoded) {
+    if (err) {
+      return res.status(403).send({ message: "forbidden access" });
+    }
+
+    req.decoded = decoded;
+    next();
+  });
+}
 
 const client = new MongoClient(uri, {
   useNewUrlParser: true,
@@ -30,6 +50,8 @@ async function run() {
       .db("doctorsPortal")
       .collection("bookings");
 
+    const usersCollection = client.db("doctorsPortal").collection("users");
+
     /**
      * API Naming Convention
      * app.get('/bookings')
@@ -40,6 +62,7 @@ async function run() {
      * app.put('/bookings/:id')
      */
 
+    // all appointment options with remaining slots
     app.get("/appointmentOptions", async (req, res) => {
       const date = req.query.date;
 
@@ -70,6 +93,7 @@ async function run() {
       res.send(appointmentOptions);
     });
 
+    // booking request from user
     app.post("/bookings", async (req, res) => {
       const booking = req.body;
       const query = {
@@ -79,14 +103,53 @@ async function run() {
       };
 
       const alreadyBooked = await bookingsCollection.find(query).toArray();
-      console.log("already booked", alreadyBooked);
+      // console.log("already booked", alreadyBooked);
       if (alreadyBooked.length) {
-        const message = `You already have a booking on ${booking.appointmentDate}`;
+        const message = `You already have a booked for ${booking.treatment} on ${booking.appointmentDate}`;
         return res.send({ acknowledged: false, message });
       }
 
       const result = await bookingsCollection.insertOne(booking);
       res.send(result);
+    });
+
+    // User bookings dashboard
+    app.get("/bookings", verifyJWT, async (req, res) => {
+      const date = req.query.date;
+      const email = req.query.email;
+
+      const decodedEmail = req.decoded.email;
+
+      if (email !== decodedEmail) {
+        return res.status(403).send({ message: "forbidden access" });
+      }
+       
+      // console.log(email);
+      const query = { appointmentDate: date, email: email };
+      const bookings = await bookingsCollection.find(query).toArray();
+      res.send(bookings);
+    });
+
+    // save user
+    app.post("/users", async (req, res) => {
+      const user = req.body;
+      const result = await usersCollection.insertOne(user);
+      res.send(result);
+    });
+
+    // create jwt token
+    app.get("/jwt", async (req, res) => {
+      const email = req.query.email;
+      const query = { email: email };
+      const user = await usersCollection.findOne(query);
+
+      if (user) {
+        const token = jwt.sign({ email }, process.env.ACCESS_TOKEN, {
+          expiresIn: "1h",
+        });
+        return res.send({ accessToken: token });
+      }
+      res.status(403).send({ accessToken: "" });
     });
 
     // Advanced (optional)

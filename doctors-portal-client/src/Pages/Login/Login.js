@@ -36,6 +36,7 @@ const Login = () => {
   const handleGoogleSignIn = () => {
     googleSignIn()
       .then(() => {
+        navigate(from, { replace: true });
         toast.success("Successfully login with Google");
       })
       .catch((err) => console.log(err));
@@ -63,7 +64,8 @@ const Login = () => {
             </label>
             <input
               type="email"
-              {...register("email", { required: "Email is required" })}
+              {...register("email", )}
+              // { required: "Email is required" }
               placeholder="Email"
               className="input input-bordered w-full"
               ref={emailRef}
