@@ -5,13 +5,17 @@ import { AuthContext } from "../../../contexts/AuthProvider";
 
 const Navbar = () => {
   const { user, logOut } = useContext(AuthContext);
-  const handleLogOut = () => {
+  const handleLogOut = (event) => {
+    event.preventDefault();
     logOut()
-      .then(() => {})
+      .then(() => {
+        return localStorage.removeItem("accessToken");
+      })
       .catch((err) => console.log(err));
   };
   const menuItems = (
     <React.Fragment>
+      {user?.email}
       <li>
         <Link to={"/"}>Home</Link>
       </li>

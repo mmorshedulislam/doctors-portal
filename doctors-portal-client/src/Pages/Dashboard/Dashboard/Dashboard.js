@@ -20,7 +20,7 @@ const Dashboard = () => {
       fetch(
         `http://localhost:5000/bookings?email=${user?.email}&date=${date}`, {
           headers: {
-            authorizaion: `Bearer ${localStorage.getItem('accessToken')}`
+            authorization: `Bearer ${localStorage.getItem('accessToken')}`
           }
         }
       ).then((res) => res.json()),

@@ -5,14 +5,26 @@ import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../contexts/AuthProvider";
+import useToken from "../../hooks/useToken";
 
 const Login = () => {
   const { signIn, googleSignIn, resetPassword } = useContext(AuthContext);
+
+  const [pwEmail, setPwEmail] = useState("");
   const [loginError, setLoginError] = useState("");
   const location = useLocation();
+  const [userEmail, setUserEmail] = useState('')
+  const [token] = useToken(userEmail);
   const navigate = useNavigate();
+
   const from = location?.state?.from?.pathname || "/";
-  const emailRef = useRef();
+
+  if (token) {
+    navigate(from, { replace: true });
+  }
+
+
+
   const {
     register,
     formState: { errors },
@@ -20,13 +32,13 @@ const Login = () => {
   } = useForm();
 
   const handleLogin = (data) => {
-    console.log(data);
     setLoginError("");
     signIn(data.email, data.password)
       .then((result) => {
         const user = result.user;
-        navigate(from, { replace: true });
+        setUserEmail(data.email);
         toast.success("User Login successfully");
+        console.log("login", userEmail);
       })
       .catch((err) => {
         setLoginError(err.message || err.code);
@@ -43,8 +55,7 @@ const Login = () => {
   };
 
   const handleResetPassword = () => {
-    const email = emailRef.current.value;
-    resetPassword(email)
+    resetPassword(pwEmail)
       .then(() => {
         toast.success("Reset email has been sent.");
       })
@@ -64,11 +75,10 @@ const Login = () => {
             </label>
             <input
               type="email"
-              {...register("email", )}
-              // { required: "Email is required" }
+              {...register("email", { required: "Email is required" })}
               placeholder="Email"
               className="input input-bordered w-full"
-              ref={emailRef}
+              onBlur={(event) => setPwEmail(event.target.value)}
             />
             {errors.email && (
               <p className="text-red-500">{errors.email?.message}</p>
@@ -102,7 +112,7 @@ const Login = () => {
               </button>
             </label>
           </div>
-          {<p>{loginError}</p>}
+          {<p className="text-red-500">{loginError}</p>}
           <input
             className="btn btn-accent w-full my-4"
             type="submit"

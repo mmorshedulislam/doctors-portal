@@ -5,11 +5,18 @@ import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "../../contexts/AuthProvider";
+import useToken from "../../hooks/useToken";
 
 const SignUp = () => {
   const { createUser, updateUser } = useContext(AuthContext);
   const [signUpError, setSignUpError] = useState("");
   const navigate = useNavigate();
+  const [createdUserEmail, setCreatedUserEmail] = useState("");
+  const [token] = useToken(createdUserEmail);
+
+  if (token) {
+    navigate("/");
+  }
 
   const {
     register,
@@ -22,7 +29,6 @@ const SignUp = () => {
     createUser(data.email, data.password)
       .then((result) => {
         const user = result.user;
-        toast.success(`User Created Successfully`);
         const userInfo = {
           displayName: data.name,
         };
@@ -50,19 +56,8 @@ const SignUp = () => {
       .then((res) => res.json())
       .then((data) => {
         if (data.acknowledged) {
-          getUserToken(email)
-          toast.success("User info saved successfully.");
-        }
-      });
-  };
-
-  const getUserToken = (email) => {
-    fetch(`http://localhost:5000/jwt?email=${email}`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.accessToken) {
-          localStorage.setItem('accessToken', data.accessToken)
-          navigate("/");
+          setCreatedUserEmail(email);
+          toast.success(`User Created Successfully`);
         }
       });
   };
