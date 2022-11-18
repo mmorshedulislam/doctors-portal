@@ -153,9 +153,8 @@ async function run() {
 
     // make admin role (fixed korte hobe)
     app.put("/users/admin/:id", verifyJWT, async (req, res) => {
-
       const decodedEmail = req.decoded.email;
-      console.log('decoded', req.decoded);
+      console.log("decoded", req.decoded);
       const query = { email: decodedEmail };
       const user = await usersCollection.findOne(query);
       console.log(user);
@@ -193,6 +192,16 @@ async function run() {
         return res.send({ accessToken: token });
       }
       res.status(403).send({ accessToken: "" });
+    });
+
+    // appointment name specific (project)
+    app.get("/appointmentSpecialty", async (req, res) => {
+      const query = {};
+      const result = await appointmentOptionsCollection
+        .find(query)
+        .project({ name: 1 })
+        .toArray();
+        res.send(result)
     });
 
     // Advanced (optional)

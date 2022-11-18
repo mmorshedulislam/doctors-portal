@@ -6,7 +6,7 @@ import { useContext } from "react";
 import { DayPicker } from "react-day-picker";
 import { AuthContext } from "../../../contexts/AuthProvider";
 import Navbar from "../../Shared/Navbar/Navbar";
-import DashboardTable from "./DashboardTable";
+import MyAppointment from "./MyAppointment";
 
 const Dashboard = () => {
   const { user } = useContext(AuthContext);
@@ -14,14 +14,15 @@ const Dashboard = () => {
   const [isOpen, setIsOpen] = useState(false);
   const date = format(selectedDate, "PP");
 
-  const { data: bookings = [] } = useQuery({
+  const { data: bookings = [], isLoading } = useQuery({
     queryKey: ["bookings", date, user.email],
     queryFn: () =>
       fetch(
-        `http://localhost:5000/bookings?email=${user?.email}&date=${date}`, {
+        `http://localhost:5000/bookings?email=${user?.email}&date=${date}`,
+        {
           headers: {
-            authorization: `Bearer ${localStorage.getItem('accessToken')}`
-          }
+            authorization: `Bearer ${localStorage.getItem("accessToken")}`,
+          },
         }
       ).then((res) => res.json()),
   });
@@ -52,7 +53,7 @@ const Dashboard = () => {
               </div>
             </div>
           </div>
-          <DashboardTable bookings={bookings}></DashboardTable>
+          <MyAppointment bookings={bookings} isLoading={isLoading}></MyAppointment>
         </div>
       </div>
     </div>

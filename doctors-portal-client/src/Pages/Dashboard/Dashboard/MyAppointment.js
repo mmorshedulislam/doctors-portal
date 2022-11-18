@@ -1,7 +1,11 @@
 import React from "react";
+import Loading from "../../Shared/Loading";
 import TableRow from "./TableRow";
 
-const DashboardTable = ({ bookings: bookings }) => {
+const MyAppointments = ({ bookings, isLoading }) => {
+  if (isLoading) {
+    return <Loading></Loading>;
+  }
   return (
     <div className="overflow-x-auto">
       <table className="table w-full">
@@ -16,17 +20,14 @@ const DashboardTable = ({ bookings: bookings }) => {
           </tr>
         </thead>
         <tbody>
-          {bookings?.map((book, i) => (
-            <TableRow
-              key={i}
-              book={book}
-              i={i}
-            ></TableRow>
-          ))}
+          {bookings &&
+            bookings?.map((book, i) => (
+              <TableRow key={i} book={book} i={i}></TableRow>
+            ))}
         </tbody>
       </table>
     </div>
   );
 };
 
-export default DashboardTable;
+export default MyAppointments;

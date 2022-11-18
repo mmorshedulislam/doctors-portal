@@ -130,17 +130,15 @@ const SignUp = () => {
             type="submit"
             value="Sign Up"
           />
-          <p className="text-center">
-            Already have an account?{" "}
-            <Link className="text-secondary" to="/login">
-              Please login
-            </Link>
-          </p>
-          <p className="divider">OR</p>
-          <button className="btn btn-outline w-full">
-            CONTINUE WITH GOOGLE
-          </button>
         </form>
+        <p className="text-center">
+          Already have an account?{" "}
+          <Link className="text-secondary" to="/login">
+            Please login
+          </Link>
+        </p>
+        <p className="divider">OR</p>
+        <button className="btn btn-outline w-full">CONTINUE WITH GOOGLE</button>
       </div>
     </div>
   );

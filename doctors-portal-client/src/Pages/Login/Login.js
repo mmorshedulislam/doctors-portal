@@ -13,7 +13,7 @@ const Login = () => {
   const [pwEmail, setPwEmail] = useState("");
   const [loginError, setLoginError] = useState("");
   const location = useLocation();
-  const [userEmail, setUserEmail] = useState('')
+  const [userEmail, setUserEmail] = useState("");
   const [token] = useToken(userEmail);
   const navigate = useNavigate();
 
@@ -22,8 +22,6 @@ const Login = () => {
   if (token) {
     navigate(from, { replace: true });
   }
-
-
 
   const {
     register,
@@ -103,14 +101,6 @@ const Login = () => {
             {errors.password && (
               <p className="text-red-500">{errors.password?.message}</p>
             )}
-            <label className="label text-xl">
-              <button
-                onClick={handleResetPassword}
-                className="label-text-alt text-xl"
-              >
-                Forgot Password?
-              </button>
-            </label>
           </div>
           {<p className="text-red-500">{loginError}</p>}
           <input
@@ -119,6 +109,14 @@ const Login = () => {
             value="Login"
           />
         </form>
+        <label className="label text">
+          <button
+            onClick={handleResetPassword}
+            className="text-xl"
+          >
+            Forgot Password?
+          </button>
+        </label>
         <p className="text-center">
           New to Doctors Portal?{" "}
           <Link className="text-secondary" to="/signup">
