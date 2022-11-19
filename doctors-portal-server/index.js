@@ -15,6 +15,7 @@ app.use(express.json());
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.7pbomn6.mongodb.net/?retryWrites=true&w=majority`;
 
+// verify jwt token
 function verifyJWT(req, res, next) {
   const authHeader = req.headers.authorization;
 
@@ -51,6 +52,20 @@ async function run() {
       .collection("bookings");
 
     const usersCollection = client.db("doctorsPortal").collection("users");
+    const doctorsCollection = client.db("doctorsPortal").collection("doctors");
+
+    // verify admin
+    // make sure you use verifyAdmin after verifyJwt
+    const verifyAdmin = async (req, res, next) => {
+      const decodedEmail = req.decoded.email;
+      const query = { email: decodedEmail };
+      const user = await usersCollection.findOne(query);
+
+      if (user?.role !== "admin") {
+        return res.status(403).send({ message: "Forbidden access" });
+      }
+      next();
+    };
 
     /**
      * API Naming Convention
@@ -63,6 +78,7 @@ async function run() {
      */
 
     // all appointment options with remaining slots
+    // use aggregate to query multiple collection and then merge data
     app.get("/appointmentOptions", async (req, res) => {
       const date = req.query.date;
 
@@ -151,17 +167,8 @@ async function run() {
       res.send({ isAdmin: user?.role === "admin" });
     });
 
-    // make admin role (fixed korte hobe)
-    app.put("/users/admin/:id", verifyJWT, async (req, res) => {
-      const decodedEmail = req.decoded.email;
-      console.log("decoded", req.decoded);
-      const query = { email: decodedEmail };
-      const user = await usersCollection.findOne(query);
-      console.log(user);
-
-      if (user?.role !== "admin") {
-        return res.status(403).send({ message: "Forbidden access" });
-      }
+    // make admin role
+    app.put("/users/admin/:id", verifyJWT, verifyAdmin, async (req, res) => {
 
       const id = req.params.id;
       const filter = { _id: ObjectId(id) };
@@ -187,7 +194,7 @@ async function run() {
 
       if (user) {
         const token = jwt.sign({ email }, process.env.ACCESS_TOKEN, {
-          expiresIn: "1h",
+          expiresIn: "1d",
         });
         return res.send({ accessToken: token });
       }
@@ -201,7 +208,29 @@ async function run() {
         .find(query)
         .project({ name: 1 })
         .toArray();
-        res.send(result)
+      res.send(result);
+    });
+
+    // add a doctor
+    app.post("/doctors", verifyJWT, async (req, res) => {
+      const doctor = req.body;
+      const result = await doctorsCollection.insertOne(doctor);
+      res.send(result);
+    });
+
+    // get doctors
+    app.get("/doctors", verifyJWT, async (req, res) => {
+      const query = {};
+      const doctors = await doctorsCollection.find(query).toArray();
+      res.send(doctors);
+    });
+
+    // DELETE DOCTOR
+    app.delete("/doctors/:id", verifyJWT, async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await doctorsCollection.deleteOne(query);
+      res.send(result);
     });
 
     // Advanced (optional)

@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useContext } from "react";
 import { DayPicker } from "react-day-picker";
 import { AuthContext } from "../../../contexts/AuthProvider";
+import Loading from "../../Shared/Loading";
 import Navbar from "../../Shared/Navbar/Navbar";
 import MyAppointment from "./MyAppointment";
 
@@ -26,6 +27,10 @@ const Dashboard = () => {
         }
       ).then((res) => res.json()),
   });
+
+  if (isLoading) {
+    return <Loading></Loading>;
+  }
 
   return (
     <div>
@@ -53,7 +58,10 @@ const Dashboard = () => {
               </div>
             </div>
           </div>
-          <MyAppointment bookings={bookings} isLoading={isLoading}></MyAppointment>
+          <MyAppointment
+            bookings={bookings}
+            isLoading={isLoading}
+          ></MyAppointment>
         </div>
       </div>
     </div>
