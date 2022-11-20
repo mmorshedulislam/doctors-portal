@@ -6,8 +6,10 @@ import AllUsers from "../../Pages/Dashboard/AllUsers/AllUsers";
 import AddDoctor from "../../Pages/Dashboard/Dashboard/AddDoctor/AddDoctor";
 import Dashboard from "../../Pages/Dashboard/Dashboard/Dashboard";
 import ManageDoctors from "../../Pages/Dashboard/ManageDoctors/ManageDoctors";
+import Payment from "../../Pages/Dashboard/Payment/Payment";
 import Home from "../../Pages/Home/Home/Home";
 import Login from "../../Pages/Login/Login";
+import DisplayError from "../../Pages/Shared/DisplayError/DisplayError";
 import SignUp from "../../Pages/SignUp/SignUp";
 import AdminRoute from "./AdminRoute";
 import PrivateRoute from "./PrivateRoute";
@@ -16,6 +18,7 @@ const router = createBrowserRouter([
   {
     path: "/",
     element: <Main></Main>,
+    errorElement: <DisplayError></DisplayError>,
     children: [
       {
         path: "/",
@@ -42,6 +45,7 @@ const router = createBrowserRouter([
         <DashboardLayout></DashboardLayout>
       </PrivateRoute>
     ),
+    errorElement: <DisplayError></DisplayError>,
     children: [
       {
         path: "/dashboard",
@@ -68,6 +72,16 @@ const router = createBrowserRouter([
         element: (
           <AdminRoute>
             <ManageDoctors></ManageDoctors>
+          </AdminRoute>
+        ),
+      },
+      {
+        path: "/dashboard/payment/:id",
+        loader: ({ params }) =>
+          fetch(`${process.env.REACT_APP_PORT}/booking/${params.id}`),
+        element: (
+          <AdminRoute>
+            <Payment></Payment>
           </AdminRoute>
         ),
       },

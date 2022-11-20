@@ -17,10 +17,12 @@ const MyAppointments = ({ bookings, isLoading }) => {
             <th>Treatment</th>
             <th>Date</th>
             <th>Time</th>
+            <th>Price</th>
+            <th>Payment</th>
           </tr>
         </thead>
         <tbody>
-          {bookings &&
+          {bookings.length &&
             bookings?.map((book, i) => (
               <TableRow key={i} book={book} i={i}></TableRow>
             ))}

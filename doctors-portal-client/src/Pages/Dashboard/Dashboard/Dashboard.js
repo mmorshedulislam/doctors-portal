@@ -19,7 +19,7 @@ const Dashboard = () => {
     queryKey: ["bookings", date, user.email],
     queryFn: () =>
       fetch(
-        `http://localhost:5000/bookings?email=${user?.email}&date=${date}`,
+        `${process.env.REACT_APP_PORT}/bookings?email=${user?.email}&date=${date}`,
         {
           headers: {
             authorization: `Bearer ${localStorage.getItem("accessToken")}`,

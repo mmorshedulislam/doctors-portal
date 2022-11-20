@@ -11,11 +11,11 @@ const AllUsers = () => {
   } = useQuery({
     queryKey: ["users"],
     queryFn: () =>
-      fetch(`http://localhost:5000/users`).then((res) => res.json()),
+      fetch(`${process.env.REACT_APP_PORT}/users`).then((res) => res.json()),
   });
 
   const handleMakeAdmin = (id) => {
-    fetch(`http://localhost:5000/users/admin/${id}`, {
+    fetch(`${process.env.REACT_APP_PORT}/users/admin/${id}`, {
       method: "PUT",
       headers: {
         authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -36,9 +36,9 @@ const AllUsers = () => {
 
   return (
     <div>
-      <h2 className="text-3xl my-3">All Users {users?.length}</h2>
+      <h2 className="text-3xl my-3 mx-5">All Users {users?.length}</h2>
       <div className="overflow-x-auto">
-        <table className="table w-full">
+        <table className="table w-full mx-5">
           <thead>
             <tr>
               <th></th>

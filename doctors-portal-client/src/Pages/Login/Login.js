@@ -62,7 +62,7 @@ const Login = () => {
       });
   };
 
-  console.log('token', token);
+  // console.log('token', token);
 
   return (
     <div className="h-[800px] flex justify-center items-center">

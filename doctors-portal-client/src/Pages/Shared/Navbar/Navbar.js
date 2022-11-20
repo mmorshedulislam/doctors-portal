@@ -15,7 +15,6 @@ const Navbar = () => {
   };
   const menuItems = (
     <React.Fragment>
-      {user?.email}
       <li>
         <Link to={"/"}>Home</Link>
       </li>
@@ -76,7 +75,7 @@ const Navbar = () => {
       <label
         htmlFor="dashboard-drawer"
         tabIndex={0}
-        className="btn btn-ghost lg:hidden"
+        className="btn btn-ghost lg:hidden navbar-end"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"

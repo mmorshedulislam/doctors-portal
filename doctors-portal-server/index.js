@@ -3,6 +3,8 @@ const cors = require("cors");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
+const stripe = require("stripe")(process.env.STRIPE_SK);
+
 const port = process.env.PORT || 5000;
 
 const app = express();
@@ -12,8 +14,13 @@ app.use(cors());
 app.use(express.json());
 
 // MongoDB starts
-
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.7pbomn6.mongodb.net/?retryWrites=true&w=majority`;
+
+const client = new MongoClient(uri, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  serverApi: ServerApiVersion.v1,
+});
 
 // verify jwt token
 function verifyJWT(req, res, next) {
@@ -35,24 +42,28 @@ function verifyJWT(req, res, next) {
   });
 }
 
-const client = new MongoClient(uri, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-  serverApi: ServerApiVersion.v1,
-});
-
 async function run() {
   try {
+    // Appointment collection
     const appointmentOptionsCollection = client
       .db("doctorsPortal")
       .collection("appointmentOptions");
 
+    // Booking collection
     const bookingsCollection = client
       .db("doctorsPortal")
       .collection("bookings");
 
+    // Users collection
     const usersCollection = client.db("doctorsPortal").collection("users");
+
+    // Doctors collection
     const doctorsCollection = client.db("doctorsPortal").collection("doctors");
+
+    // Payment collection
+    const paymentsCollection = client
+      .db("doctorsPortal")
+      .collection("payments");
 
     // verify admin
     // make sure you use verifyAdmin after verifyJwt
@@ -145,7 +156,15 @@ async function run() {
       res.send(bookings);
     });
 
-    // save user
+    // specific booking by id
+    app.get("/booking/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await bookingsCollection.findOne(query);
+      res.send(result);
+    });
+
+    // save user to the database
     app.post("/users", async (req, res) => {
       const user = req.body;
       const result = await usersCollection.insertOne(user);
@@ -169,7 +188,6 @@ async function run() {
 
     // make admin role
     app.put("/users/admin/:id", verifyJWT, verifyAdmin, async (req, res) => {
-
       const id = req.params.id;
       const filter = { _id: ObjectId(id) };
       const options = { upsert: true };
@@ -233,6 +251,60 @@ async function run() {
       res.send(result);
     });
 
+    /* 
+    // add price
+    // temporary to update price field on appointment options
+    app.get("/addPrice", async (req, res) => {
+      const filter = {};
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: {
+          price: 99,
+        },
+      };
+      const result = await appointmentOptionsCollection.updateMany(
+        filter,
+        updateDoc,
+        options
+      );
+      res.send(result);
+    }); */
+
+    // STRIPE PAYMENT METHOD
+    app.post("/create-payment-intent", async (req, res) => {
+      const booking = req.body;
+      const price = booking.price;
+      const amount = price * 100;
+      const paymentIntent = await stripe.paymentIntents.create({
+        currency: "usd",
+        amount: amount,
+        payment_method_types: ["card"],
+      });
+      res.send({
+        clientSecret: paymentIntent.client_secret,
+      });
+    });
+
+    // save payment info to the database
+    app.post("/payments", async (req, res) => {
+      const payment = req.body;
+      const result = await paymentsCollection.insertOne(payment);
+
+      const id = payment.bookingId;
+      const filter = { _id: ObjectId(id) };
+      const updateDoc = {
+        $set: {
+          paid: true,
+          transactionId: payment.transactionId,
+        },
+      };
+      const updateBooking = await bookingsCollection.updateOne(
+        filter,
+        updateDoc
+      );
+      res.send(result);
+    });
+
     // Advanced (optional)
     app.get("/v2/appointmentOptions", async (req, res) => {
       const date = req.query.date;
@@ -258,6 +330,7 @@ async function run() {
           {
             $project: {
               name: 1,
+              price: 1,
               slots: 1,
               booked: {
                 $map: {
@@ -271,6 +344,7 @@ async function run() {
           {
             $project: {
               name: 1,
+              price: 1,
               slots: {
                 $setDifference: ["$slots", "$booked"],
               },

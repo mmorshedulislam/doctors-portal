@@ -21,8 +21,8 @@ const DashboardLayout = () => {
           <Outlet></Outlet>
         </div>
         <div className="drawer-side">
-          <label htmlFor="dashboard-drawer" className="drawer-overlay"></label>
-          <ul className="menu p-4 w-80 text-base-content">
+          <label htmlFor="dashboard-drawer" className="drawer-overlay "></label>
+          <ul className="menu p-4 w-80 text-base-content bg-base-100">
             {/* <!-- Sidebar content here --> */}
             <li>
               <Link to={"/dashboard"}>My Appointments</Link>

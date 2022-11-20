@@ -19,16 +19,16 @@ const AppointmentOptions = ({ selectedDate }) => {
   } = useQuery({
     queryKey: ["appointmentOptions", date],
     queryFn: () =>
-      fetch(`http://localhost:5000/v2/appointmentOptions?date=${date}`).then(
-        (res) => res.json()
-      ),
+      fetch(
+        `${process.env.REACT_APP_PORT}/v2/appointmentOptions?date=${date}`
+      ).then((res) => res.json()),
   });
 
   // using async await
   /*   const {data: appointmentOptions = []} = useQuery({
     queryKey: ['appointmentOptions'],
     queryFn: async () => {
-      const res = await fetch(`http://localhost:5000/appointmentOptions`); 
+      const res = await fetch(`${process.env.REACT_APP_PORT}/appointmentOptions`); 
       const data = res.json()
       return data; 
     }
@@ -37,7 +37,7 @@ const AppointmentOptions = ({ selectedDate }) => {
   // using useEffect
   /*   const [appointmentOptions, setAppointmentOptions] = useState([]);
   useEffect(() => {
-    fetch(`http://localhost:5000/appointmentOptions`)
+    fetch(`${process.env.REACT_APP_PORT}/appointmentOptions`)
       .then((res) => res.json())
       .then((data) => setAppointmentOptions(data));
   }, []); */

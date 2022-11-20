@@ -14,12 +14,14 @@ const AddDoctor = () => {
 
   const imgbbHostKey = process.env.REACT_APP_imgBB_key;
 
-    const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const { data: specialties, isLoading } = useQuery({
     queryKey: ["specialty"],
     queryFn: async () => {
-      const res = await fetch(`http://localhost:5000/appointmentSpecialty`);
+      const res = await fetch(
+        `${process.env.REACT_APP_PORT}/appointmentSpecialty`
+      );
       const data = res.json();
       return data;
     },
@@ -38,7 +40,7 @@ const AddDoctor = () => {
       .then((imgData) => {
         if (imgData.success) {
           const imgUrl = imgData.data.url;
-          
+
           // save doctor information to the database
           const doctor = {
             name: data.name,
@@ -46,7 +48,7 @@ const AddDoctor = () => {
             specialty: data.specialty,
             image: imgUrl,
           };
-          fetch("http://localhost:5000/doctors", {
+          fetch(`${process.env.REACT_APP_PORT}/doctors`, {
             method: "POST",
             headers: {
               "content-type": "application/json",
@@ -57,8 +59,8 @@ const AddDoctor = () => {
             .then((res) => res.json())
             .then((result) => {
               console.log(result);
-             toast.success(`${data.name} is added successfully.`)
-             navigate('/dashboard/managedoctors')
+              toast.success(`${data.name} is added successfully.`);
+              navigate("/dashboard/managedoctors");
             });
         }
       });

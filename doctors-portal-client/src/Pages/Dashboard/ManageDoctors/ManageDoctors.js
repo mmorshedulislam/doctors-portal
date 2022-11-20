@@ -18,7 +18,7 @@ const ManageDoctors = () => {
     queryKey: ["doctors"],
     queryFn: async () => {
       try {
-        const res = await fetch(`http://localhost:5000/doctors`, {
+        const res = await fetch(`${process.env.REACT_APP_PORT}/doctors`, {
           headers: {
             authorization: `Bearer ${localStorage.getItem("accessToken")}`,
           },
@@ -30,7 +30,7 @@ const ManageDoctors = () => {
   });
 
   const handleDeleteDoctor = (doctor) => {
-    fetch(`http://localhost:5000/doctors/${doctor._id}`, {
+    fetch(`${process.env.REACT_APP_PORT}/doctors/${doctor._id}`, {
       method: "DELETE",
       headers: {
         authorization: `Bearer ${localStorage.getItem("accessToken")}`,
@@ -50,9 +50,9 @@ const ManageDoctors = () => {
   }
   return (
     <div>
-      <h2 className="text-3xl mb-5">Manage Doctors: {doctors?.length}</h2>
+      <h2 className="text-3xl mb-5 mx-5">Manage Doctors: {doctors?.length}</h2>
       <div className="overflow-x-auto">
-        <table className="table w-full">
+        <table className="table w-full mx-5">
           <thead>
             <tr>
               <th></th>
@@ -64,30 +64,31 @@ const ManageDoctors = () => {
             </tr>
           </thead>
           <tbody>
-            {doctors.map((doctor, i) => (
-              <tr key={doctor._id}>
-                <th>{i + 1}</th>
-                <th>
-                  <div className="avatar">
-                    <div className="w-16 rounded-full">
-                      <img src={doctor.image} alt={doctor.name} />
+            {doctors.length &&
+              doctors?.map((doctor, i) => (
+                <tr key={doctor._id}>
+                  <th>{i + 1}</th>
+                  <th>
+                    <div className="avatar">
+                      <div className="w-16 rounded-full">
+                        <img src={doctor.image} alt={doctor.name} />
+                      </div>
                     </div>
-                  </div>
-                </th>
-                <td>{doctor.name}</td>
-                <td>{doctor.email}</td>
-                <td>{doctor.specialty}</td>
-                <td>
-                  <label
-                    onClick={() => setDeletingDoctor(doctor)}
-                    htmlFor="confirmation-modal"
-                    className="btn btn-xs btn-error"
-                  >
-                    Delete
-                  </label>
-                </td>
-              </tr>
-            ))}
+                  </th>
+                  <td>{doctor.name}</td>
+                  <td>{doctor.email}</td>
+                  <td>{doctor.specialty}</td>
+                  <td>
+                    <label
+                      onClick={() => setDeletingDoctor(doctor)}
+                      htmlFor="confirmation-modal"
+                      className="btn btn-xs btn-error"
+                    >
+                      Delete
+                    </label>
+                  </td>
+                </tr>
+              ))}
           </tbody>
         </table>
       </div>
