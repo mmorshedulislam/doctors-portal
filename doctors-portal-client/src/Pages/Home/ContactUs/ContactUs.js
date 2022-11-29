@@ -12,7 +12,7 @@ const ContactUs = () => {
           </h2>
         </div>
       </div>
-      <form className="lg:w-1/3 mx-5 lg:mx-0">
+      <form className="lg:w-1/3 mx-5 lg:mx-auto">
         <input
           type="text"
           placeholder="Email Address"

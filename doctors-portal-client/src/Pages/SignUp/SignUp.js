@@ -46,7 +46,7 @@ const SignUp = () => {
   const saveUser = (name, email) => {
     const user = { name, email };
 
-    fetch(`http://localhost:5000/users`, {
+    fetch(`${process.env.REACT_APP_PORT}/users`, {
       method: "POST",
       headers: {
         "content-type": "application/json",

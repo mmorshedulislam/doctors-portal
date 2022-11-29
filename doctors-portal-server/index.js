@@ -1,6 +1,8 @@
 const express = require("express");
 const cors = require("cors");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
+const nodemailer = require("nodemailer");
+const mg = require("nodemailer-mailgun-transport");
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
 const stripe = require("stripe")(process.env.STRIPE_SK);
@@ -21,6 +23,56 @@ const client = new MongoClient(uri, {
   useUnifiedTopology: true,
   serverApi: ServerApiVersion.v1,
 });
+
+function sendBookingEmail(booking) {
+  const { email, treatment, appointmentDate, slot } = booking;
+
+  /*
+    // SendGrid
+    let transporter = nodemailer.createTransport({
+    host: "smtp.sendgrid.net",
+    port: 587,
+    auth: {
+      user: "apikey",
+      pass: process.env.SENDGRID_API_KEY,
+    },
+  }); */
+
+  // This is your API key that you retrieve from www.mailgun.com/cp (free up to 10K monthly emails)
+  const auth = {
+    auth: {
+      api_key: process.env.SEND_EMAIL_KEY,
+      domain: process.env.SEND_EMAIL_DOMAIN,
+    },
+  };
+
+  const transporter = nodemailer.createTransport(mg(auth));
+
+  transporter.sendMail(
+    {
+      from: "morshed952640@gmail.com", // verified sender email
+      to: email, // recipient email
+      subject: `Your appointment for ${treatment} is Confirmed.`, // Subject line
+      text: "Hello world!", // plain text body
+      html: `
+      <h3>Your appointment ${treatment} is confirmed</h3>
+      <div>
+        <p>Your appointment for treatment: ${treatment}</p>
+        <p>Please visit us on ${appointmentDate} at ${slot}</p>
+        <p>Thanks from Doctors Portal</p>
+      </div>
+
+      `, // html body
+    },
+    function (error, info) {
+      if (error) {
+        console.log(error);
+      } else {
+        console.log("Email sent: " + info.response);
+      }
+    }
+  );
+}
 
 // verify jwt token
 function verifyJWT(req, res, next) {
@@ -109,6 +161,7 @@ async function run() {
         const optionBooked = alreadyBooked.filter(
           (book) => book.treatment === option.name
         );
+        console.log(optionBooked);
         const bookedSlots = optionBooked.map((book) => book.slot);
         const remainingSlots = option.slots.filter(
           (slot) => !bookedSlots.includes(slot)
@@ -137,6 +190,8 @@ async function run() {
       }
 
       const result = await bookingsCollection.insertOne(booking);
+      // send email about appointment confirmation
+      sendBookingEmail(booking);
       res.send(result);
     });
 
